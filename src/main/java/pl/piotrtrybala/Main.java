@@ -1,9 +1,19 @@
 package pl.piotrtrybala;
 
+import pl.piotrtrybala.http.Config;
+import pl.piotrtrybala.http.Server;
+
 import java.io.IOException;
 
 public class Main {
     static void main(String[] args) {
-        Server s = new Server(new ServerConfig((short) 10000));
+        Config httpConfig = new Config();
+
+        try {
+            Server server = new Server(httpConfig);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
