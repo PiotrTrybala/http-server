@@ -5,6 +5,7 @@ import pl.piotrtrybala.http.types.Version;
 
 import java.net.URI;
 import java.nio.CharBuffer;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Request {
@@ -65,6 +66,17 @@ public class Request {
         this.body = body;
     }
 
+    @Override
+    public String toString() {
+        return "Request{" +
+                "method=" + method +
+                ", uri=" + uri +
+                ", version=" + version +
+                ", headers=" + headers +
+                ", body=" + Arrays.toString(body) +
+                '}';
+    }
+
     public static Request fromBuffer(char[] buffer) {
 
         if (buffer == null || buffer.length == 0) {
@@ -74,9 +86,11 @@ public class Request {
         CharBuffer charBuffer = CharBuffer.wrap(buffer);
 
         String requestLine = readLine(charBuffer);
+        System.out.println("request line:" + requestLine);
         if (requestLine == null || requestLine.isEmpty()) return null;
 
         String[] parts = requestLine.split(" ");
+        System.out.println(Arrays.toString(parts));
         if (parts.length < 3) return null;
 
         Method method;
@@ -86,8 +100,10 @@ public class Request {
         try {
             method = Method.valueOf(parts[0].toUpperCase());
             uri = URI.create(parts[1]);
-            version = Version.valueOf(parts[2].toUpperCase());
+            version = Version.HTTP11; // support only for http/1.1
+
         } catch(Exception e) {
+            e.printStackTrace();
             return null;
         }
 
@@ -103,7 +119,8 @@ public class Request {
             }
         }
 
-        char[] body = new char[charBuffer.remaining()];
+        int contentLength = Integer.parseInt(headers.get("Content-Length"));
+        char[] body = new char[contentLength];
         charBuffer.get(body);
 
         return new Request(method, uri, version, headers, body);
@@ -113,21 +130,32 @@ public class Request {
         if (!buffer.hasRemaining()) return null;
 
         int start = buffer.position();
-
         while(buffer.hasRemaining()) {
             char c = buffer.get();
-
-            if (c == '\n' || c == '\r') {
+            if (c == '\r' || c == '\n') {
                 int end = buffer.position() - 1;
-
                 if (c == '\r' && buffer.hasRemaining() && buffer.charAt(0) == '\n') {
                     buffer.get();
                 }
-                return buffer.subSequence(start - buffer.position(), end - buffer.position()).toString();
+                return extract(buffer, start, end);
             }
         }
 
-        return buffer.subSequence(start - buffer.position(), buffer.limit() - buffer.position()).toString();
+        return extract(buffer, start, buffer.position());
+
+    }
+
+    private static String extract(CharBuffer buffer, int start, int end) {
+        int pos = buffer.position();
+        int lim = buffer.limit();
+
+        buffer.limit(end);
+        buffer.position(start);
+        String line = buffer.toString();
+
+        buffer.limit(lim);
+        buffer.position(pos);
+        return line;
     }
 
 }

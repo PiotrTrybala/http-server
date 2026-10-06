@@ -43,6 +43,7 @@ public class Server {
                     System.out.println("failed while reading data");
                 }
                 Request request = Request.fromBuffer(buffer);
+                System.out.println(request);
 
                 clientSocket.close();
             } catch (IOException ex) {
