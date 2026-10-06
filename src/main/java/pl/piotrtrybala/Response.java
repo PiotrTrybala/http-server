@@ -49,4 +49,8 @@ public class Response {
     public void setBody(ResponseBody body) {
         this.body = body;
     }
+
+    public byte[] toBytes() {
+        return null;
+    }
 }
