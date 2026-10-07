@@ -102,7 +102,7 @@ public class Request {
             uri = URI.create(parts[1]);
             version = Version.HTTP11; // support only for http/1.1
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
@@ -110,7 +110,7 @@ public class Request {
         HashMap<String, String> headers = new HashMap<>();
         String headerLine;
 
-        while((headerLine = readLine(charBuffer)) != null && !headerLine.isEmpty()) {
+        while ((headerLine = readLine(charBuffer)) != null && !headerLine.isEmpty()) {
             int colorIndex = headerLine.indexOf(":");
             if (colorIndex != -1) {
                 String headerName = headerLine.substring(0, colorIndex).trim();
@@ -119,7 +119,7 @@ public class Request {
             }
         }
 
-        int contentLength = Integer.parseInt(headers.get("Content-Length"));
+        int contentLength = Integer.parseInt(headers.get("Content-Length")); // error content length could be not defined
         char[] body = new char[contentLength];
         charBuffer.get(body);
 
@@ -130,7 +130,7 @@ public class Request {
         if (!buffer.hasRemaining()) return null;
 
         int start = buffer.position();
-        while(buffer.hasRemaining()) {
+        while (buffer.hasRemaining()) {
             char c = buffer.get();
             if (c == '\r' || c == '\n') {
                 int end = buffer.position() - 1;
