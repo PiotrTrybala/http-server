@@ -4,6 +4,7 @@ import pl.piotrtrybala.ResponseBody;
 import pl.piotrtrybala.http.types.StatusCode;
 import pl.piotrtrybala.http.types.Version;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Response {
@@ -14,6 +15,8 @@ public class Response {
     private HashMap<String, String> headers;
 
     private ResponseBody body;
+
+    public Response() {}
 
     public Response(Version version, StatusCode statusCode, HashMap<String, String> headers, ResponseBody body) {
         this.version = version;
@@ -54,7 +57,46 @@ public class Response {
         this.body = body;
     }
 
-    public char[] toBuffer(Response response) {
-        return null;
+    @Override
+    public String toString() {
+        return "Response{" +
+                "version=" + version +
+                ", statusCode=" + statusCode +
+                ", headers=" + headers +
+                ", body=" + body +
+                '}';
+    }
+
+    public static Response ok() {
+        Response response = new Response();
+        response.setVersion(Version.HTTP11);
+        response.setStatusCode(StatusCode.OK);
+        return response;
+    }
+
+    public static Response notFound() {
+        Response response = new Response();
+        response.setVersion(Version.HTTP11);
+        response.setStatusCode(StatusCode.NOT_FOUND);
+        return response;
+    }
+
+    public char[] toBuffer() {
+
+        String builder = "HTTP/1.1" +
+                " " +
+                statusCode.toString() +
+                "\r\n" +
+                "Server: shttp" + // add to config
+                "\r\n" +
+                "Content-Length: 0" + // dummy response
+                "\r\n" +
+                "Connection: close" +
+                "\r\n" +
+                "\r\n";
+
+        System.out.println("builder response = " + builder);
+
+        return builder.toCharArray();
     }
 }

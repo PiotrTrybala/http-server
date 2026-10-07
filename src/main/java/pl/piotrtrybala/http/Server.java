@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
@@ -26,14 +27,12 @@ public class Server {
 
         this.router = new Router();
         this.dispatcher = new Dispatcher(this.router);
-        this.initHttpServer();
-    }
-
-    private void initHttpServer() throws Exception {
 
         serverSocket = new ServerSocket(this.config.port);
+    }
 
-        while (true) {
+    public void run() {
+        while (!serverSocket.isClosed()) {
             try {
                 clientSocket = serverSocket.accept();
                 handleClient(clientSocket);
@@ -42,28 +41,44 @@ public class Server {
                 ex.printStackTrace();
             }
         }
+    }
 
+    public Router getRouter() {
+        return this.router;
     }
 
     private void handleClient(Socket clientSocket) throws IOException {
-        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        char[] buffer = new char[this.config.maxRequestSize];
+        try (
+                BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream()))
+        ) {
+            char[] buffer = new char[this.config.maxRequestSize];
 
-        int size = in.read(buffer, 0, this.config.maxRequestSize);
-        if (size == -1) {
-            // error: reading error
-            System.out.println("failed while reading data");
+            int size = in.read(buffer, 0, this.config.maxRequestSize);
+            if (size == -1) {
+                System.out.println("failed while reading data: eof");
+                return;
+            }
+
+            Request request = Request.fromBuffer(buffer);
+            if (request == null) {
+                System.out.println("failed to parse request");
+                return;
+            }
+            System.out.println("request = " + request.toString());
+
+            Response response = this.dispatcher.dispatch(request);
+            System.out.println("response = " + response.toString());
+
+            char[] responseBuffer = response.toBuffer();
+            System.out.println("char buffer = " + Arrays.toString(responseBuffer));
+
+            out.write(responseBuffer);
+            out.flush();
+        } catch (IOException ex) {
+            System.err.println("Error handling client connection: " + ex.getMessage());
+            ex.printStackTrace();
         }
-        Request request = Request.fromBuffer(buffer);
-
-        Response response = this.dispatcher.dispatch(request);
-        char[] responseBuffer = response.toBuffer(response);
-
-        BufferedWriter out = new BufferedWriter(new OutputStreamWriter((clientSocket.getOutputStream())));
-        out.write(responseBuffer);
-
-        in.close();
-        out.close();
     }
 
 

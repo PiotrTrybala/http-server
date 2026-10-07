@@ -36,4 +36,8 @@ public enum StatusCode {
         return message;
     }
 
+    @Override
+    public String toString() {
+        return status + " " + message;
+    }
 }

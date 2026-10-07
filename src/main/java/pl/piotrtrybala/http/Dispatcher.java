@@ -15,17 +15,15 @@ public class Dispatcher {
     }
 
     public Response dispatch(Request request) {
-
         String path = request.getUri().getPath();
+        System.out.println("dispatch, path = " + path);
         Function<Request, Response> handler = this.router.getHandler(request.getMethod(), path);
 
         if (handler == null) {
-            // error: 404 - route not found
-            return null;
+            return Response.notFound();
         }
+        System.out.println("handler = " + handler.toString());
 
         return handler.apply(request);
     }
-
-
 }

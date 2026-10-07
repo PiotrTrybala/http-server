@@ -119,10 +119,14 @@ public class Request {
             }
         }
 
-        int contentLength = Integer.parseInt(headers.get("Content-Length")); // error content length could be not defined
-        char[] body = new char[contentLength];
-        charBuffer.get(body);
-
+        char[] body = null;
+        try {
+            int contentLength = Integer.parseInt(headers.get("Content-Length")); // error content length could be not defined
+            body = new char[contentLength];
+            charBuffer.get(body);
+        } catch(NullPointerException ex) {
+            return null;
+        }
         return new Request(method, uri, version, headers, body);
     }
 
