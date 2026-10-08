@@ -81,6 +81,13 @@ public class Response {
         return response;
     }
 
+    public static Response badRequest() {
+        Response response = new Response();
+        response.setVersion(Version.HTTP11);
+        response.setStatusCode(StatusCode.NOT_FOUND);
+        return response;
+    }
+
     public char[] toBuffer() {
 
         String builder = "HTTP/1.1" +

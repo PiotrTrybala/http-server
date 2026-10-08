@@ -1,5 +1,6 @@
 package pl.piotrtrybala.http.request;
 
+import pl.piotrtrybala.http.response.Response;
 import pl.piotrtrybala.http.types.Method;
 import pl.piotrtrybala.http.types.Version;
 
@@ -14,10 +15,14 @@ public class Request {
     private URI uri;
     private Version version;
 
+    // parsed request line
+    private HashMap<String, String> params;
+
     public HashMap<String, String> headers;
 
     public char[] body;
 
+    public Request() {}
     private Request(Method method, URI uri, Version version, HashMap<String, String> headers, char[] body) {
         this.method = method;
         this.uri = uri;
@@ -50,6 +55,14 @@ public class Request {
         this.version = version;
     }
 
+    public HashMap<String, String> getParams() {
+        return params;
+    }
+
+    public void setParams(HashMap<String, String> params) {
+        this.params = params;
+    }
+
     public HashMap<String, String> getHeaders() {
         return headers;
     }
@@ -78,10 +91,10 @@ public class Request {
     }
 
     public static Request fromBuffer(char[] buffer) {
-
         if (buffer == null || buffer.length == 0) {
             return null;
         }
+        Request request = new Request();
 
         CharBuffer charBuffer = CharBuffer.wrap(buffer);
 
@@ -107,6 +120,10 @@ public class Request {
             return null;
         }
 
+        request.setMethod(method);
+        request.setUri(uri);
+        request.setVersion(version);
+
         HashMap<String, String> headers = new HashMap<>();
         String headerLine;
 
@@ -119,6 +136,8 @@ public class Request {
             }
         }
 
+        request.setHeaders(headers);
+
         char[] body = null;
         try {
             int contentLength = Integer.parseInt(headers.get("Content-Length")); // error content length could be not defined
@@ -127,6 +146,9 @@ public class Request {
         } catch(NullPointerException ex) {
             return null;
         }
+
+        request.setBody(body);
+
         return new Request(method, uri, version, headers, body);
     }
 

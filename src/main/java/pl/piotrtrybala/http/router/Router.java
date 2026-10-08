@@ -11,6 +11,7 @@ public class Router {
 
     private final HashMap<Route, Function<Request, Response>> routes;
 
+
     public Router() {
         this.routes = new HashMap<>();
     }
