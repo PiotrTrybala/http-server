@@ -9,6 +9,16 @@ import java.util.function.Function;
 
 public class Router {
 
+    private Route root;
+
+    public Router() {
+        this.root = new Route("/");
+    }
+
+    public Handler getHandler(Request request) {
+        return null;
+    }
+
 //    public Route root; // route /
 //
 //    public Router() {
