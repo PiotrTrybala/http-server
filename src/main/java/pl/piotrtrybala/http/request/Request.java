@@ -4,8 +4,13 @@ import pl.piotrtrybala.http.response.Response;
 import pl.piotrtrybala.http.types.Method;
 import pl.piotrtrybala.http.types.Version;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -15,20 +20,14 @@ public class Request {
     private URI uri;
     private Version version;
 
-    // parsed request line
-    private HashMap<String, String> params;
+    private HashMap<String, String> params = new HashMap<>();
+    private HashMap<String, String> query = new HashMap<>();
 
-    public HashMap<String, String> headers;
+    private HashMap<String, String> headers;
 
-    public char[] body;
+    private char[] body;
 
-    public Request() {}
-    private Request(Method method, URI uri, Version version, HashMap<String, String> headers, char[] body) {
-        this.method = method;
-        this.uri = uri;
-        this.version = version;
-        this.headers = headers;
-        this.body = body;
+    public Request() {
     }
 
     public Method getMethod() {
@@ -63,6 +62,14 @@ public class Request {
         this.params = params;
     }
 
+    public HashMap<String, String> queryParams() {
+        return query;
+    }
+
+    public void setQuery(HashMap<String, String> query) {
+        this.query = query;
+    }
+
     public HashMap<String, String> getHeaders() {
         return headers;
     }
@@ -79,32 +86,22 @@ public class Request {
         this.body = body;
     }
 
-    @Override
-    public String toString() {
-        return "Request{" +
-                "method=" + method +
-                ", uri=" + uri +
-                ", version=" + version +
-                ", headers=" + headers +
-                ", body=" + Arrays.toString(body) +
-                '}';
-    }
+    public static Request fromBuffer(char[] buffer) throws Exception {
 
-    public static Request fromBuffer(char[] buffer) {
         if (buffer == null || buffer.length == 0) {
             return null;
         }
+
         Request request = new Request();
 
         CharBuffer charBuffer = CharBuffer.wrap(buffer);
 
+        // PARSE REQUEST LINE
         String requestLine = readLine(charBuffer);
-        System.out.println("request line:" + requestLine);
         if (requestLine == null || requestLine.isEmpty()) return null;
 
         String[] parts = requestLine.split(" ");
-        System.out.println(Arrays.toString(parts));
-        if (parts.length < 3) return null;
+        if (parts.length != 3) return null;
 
         Method method;
         URI uri;
@@ -113,8 +110,7 @@ public class Request {
         try {
             method = Method.valueOf(parts[0].toUpperCase());
             uri = URI.create(parts[1]);
-            version = Version.HTTP11; // support only for http/1.1
-
+            version = Version.HTTP11;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -124,6 +120,12 @@ public class Request {
         request.setUri(uri);
         request.setVersion(version);
 
+        HashMap<String, String> query = Request.parseQuery(uri.getQuery());
+        request.setQuery(query);
+
+        request.setParams(new HashMap<>());
+
+        // PARSE HEADERS
         HashMap<String, String> headers = new HashMap<>();
         String headerLine;
 
@@ -138,18 +140,46 @@ public class Request {
 
         request.setHeaders(headers);
 
+
+        // READ BODY
         char[] body = null;
         try {
             int contentLength = Integer.parseInt(headers.get("Content-Length")); // error content length could be not defined
             body = new char[contentLength];
             charBuffer.get(body);
-        } catch(NullPointerException ex) {
+        } catch (NullPointerException ex) {
             return null;
         }
 
         request.setBody(body);
 
-        return new Request(method, uri, version, headers, body);
+        return request;
+    }
+
+    private static HashMap<String, String> parseQuery(String queryString) throws UnsupportedEncodingException {
+        HashMap<String, String> query = new HashMap<>();
+
+        String[] queryParams = queryString.split("&");
+        if (queryParams.length == 0) {
+            return new HashMap<>();
+        }
+
+        for (String queryParam : queryParams) {
+            String[] kv = queryParam.split("=");
+            if (kv.length != 2) continue;
+            String key = URLDecoder.decode(kv[0], "UTF-8");
+            String value = URLDecoder.decode(kv[1], "UTF-8");
+            query.put(key, value);
+        }
+
+        return query;
+    }
+
+    public HashMap<String, String> formData(char[] body) throws UnsupportedEncodingException {
+        byte[] bytes = new String(body).getBytes(StandardCharsets.UTF_8);
+        String parsedBody = new String(bytes, StandardCharsets.UTF_8);
+
+        return Request.parseQuery(parsedBody);
     }
 
     private static String readLine(CharBuffer buffer) {
@@ -184,4 +214,14 @@ public class Request {
         return line;
     }
 
+    @Override
+    public String toString() {
+        return "Request{" +
+                "method=" + method +
+                ", uri=" + uri +
+                ", version=" + version +
+                ", headers=" + headers +
+                ", body=" + Arrays.toString(body) +
+                '}';
+    }
 }

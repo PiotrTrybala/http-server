@@ -8,22 +8,14 @@ import java.util.function.Function;
 
 public class Dispatcher {
 
-    public Router router;
 
-    public Dispatcher(Router router) {
-        this.router = router;
+    public Dispatcher() {
     }
 
-    public Response dispatch(Request request) {
-        String path = request.getUri().getPath();
-        System.out.println("dispatch, path = " + path);
-        Function<Request, Response> handler = this.router.getHandler(request.getMethod(), path);
-
+    public Response dispatch(Request request, Function<Request, Response> handler) {
         if (handler == null) {
             return Response.notFound();
         }
-        System.out.println("handler = " + handler.toString());
-
         return handler.apply(request);
     }
 }

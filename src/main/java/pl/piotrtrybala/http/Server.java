@@ -2,6 +2,7 @@ package pl.piotrtrybala.http;
 
 import pl.piotrtrybala.http.request.Request;
 import pl.piotrtrybala.http.response.Response;
+import pl.piotrtrybala.http.router.Handler;
 import pl.piotrtrybala.http.router.Router;
 
 import java.io.*;
@@ -60,24 +61,28 @@ public class Server {
                 return;
             }
 
+            // 1. PARSING REQUEST
             Request request = Request.fromBuffer(buffer);
             if (request == null) {
-                System.out.println("failed to parse request");
+                System.out.println("failed to parse rquest");
                 return;
             }
-            System.out.println("request = " + request.toString());
 
-            Response response = this.dispatcher.dispatch(request);
-            System.out.println("response = " + response.toString());
+            // 2. ROUTE REQUEST AND SELECT HANDLER
+            Handler handler = this.router.getHandler(request);
 
+            // 3. DISPATCH REQUEST AND GET RESPONSE
+            Response response = this.dispatcher.dispatch(request, handler.getHandle());
+
+            // 4. SEND RESPONSE TO CLIENT
             char[] responseBuffer = response.toBuffer();
-            System.out.println("char buffer = " + Arrays.toString(responseBuffer));
-
             out.write(responseBuffer);
             out.flush();
         } catch (IOException ex) {
             System.err.println("Error handling client connection: " + ex.getMessage());
             ex.printStackTrace();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
