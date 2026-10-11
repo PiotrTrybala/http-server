@@ -16,7 +16,15 @@ public class Router {
     }
 
     public Handler getHandler(Request request) {
-        return null;
+
+        Route.RouteMatch match = this.root.getRouteMatch(request.getMethod(), request.getUri().getPath());
+        if (match == null) return null;
+
+        // Set parameters parsed in URI path
+        Handler handler = match.handler();
+        handler.setParams(match.parameters());
+
+        return handler;
     }
 
 //    public Route root; // route /

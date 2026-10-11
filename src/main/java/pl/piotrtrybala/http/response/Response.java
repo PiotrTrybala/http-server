@@ -9,22 +9,16 @@ import java.util.HashMap;
 
 public class Response {
 
-//    private Version version;
-//    private StatusCode statusCode;
-//
-//    private HashMap<String, String> headers;
-//
-//    private ResponseBody body;
-//
-//    public Response() {}
-//
-//    public Response(Version version, StatusCode statusCode, HashMap<String, String> headers, ResponseBody body) {
-//        this.version = version;
-//        this.statusCode = statusCode;
-//        this.headers = headers;
-//        this.body = body;
-//    }
-//
+    private Version version;
+    private StatusCode statusCode;
+
+    private HashMap<String, String> headers;
+
+    private ResponseBody body;
+
+    public Response() {
+    }
+
 //    public Version getVersion() {
 //        return version;
 //    }
@@ -87,7 +81,7 @@ public class Response {
 //        response.setStatusCode(StatusCode.NOT_FOUND);
 //        return response;
 //    }
-//
+////
 //    public char[] toBuffer() {
 //
 //        String builder = "HTTP/1.1" +
@@ -106,4 +100,5 @@ public class Response {
 //
 //        return builder.toCharArray();
 //    }
+//}
 }

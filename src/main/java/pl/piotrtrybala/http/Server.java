@@ -27,7 +27,7 @@ public class Server {
         this.config = config;
 
         this.router = new Router();
-        this.dispatcher = new Dispatcher(this.router);
+        this.dispatcher = new Dispatcher();
 
         serverSocket = new ServerSocket(this.config.port);
     }
@@ -72,7 +72,7 @@ public class Server {
             Handler handler = this.router.getHandler(request);
 
             // 3. DISPATCH REQUEST AND GET RESPONSE
-            Response response = this.dispatcher.dispatch(request, handler.getHandle());
+            Response response = this.dispatcher.dispatch(request, handler);
 
             // 4. SEND RESPONSE TO CLIENT
             char[] responseBuffer = response.toBuffer();

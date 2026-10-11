@@ -53,15 +53,14 @@ public class Route {
             level++;
         }
 
-        currentSegment.handlers.put(method, new Handler(handler));
+        currentSegment.handlers.put(method, new Handler(new HashMap<>(), handler));
     }
 
-    public Handler matchRoute(Method method, String path) {
-        RouteMatch match = getHandler(method, path);
-        return match.handler();
+    public RouteMatch getRouteMatch(Method method, String path) {
+        return matchRoute(method, path);
     }
 
-    public RouteMatch getHandler(Method method, String path) {
+    public RouteMatch matchRoute(Method method, String path) {
         Map<String, String> parameters = new HashMap<>();
 
         if (path == null || path.isEmpty()) return new RouteMatch(null, new HashMap<>());
@@ -85,8 +84,8 @@ public class Route {
                     break;
                 }
             }
-            // Do parameter match of route
 
+            // Do parameter match of route
             if (nextSegment == null) {
                 for (Pair<String, Route> pair : currentSegment.routes) {
                     String key = pair.getKey();
