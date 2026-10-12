@@ -7,6 +7,7 @@ import pl.piotrtrybala.http.types.Version;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -193,6 +194,13 @@ public class Request {
         byte[] bytes = new String(body).getBytes(StandardCharsets.UTF_8);
         String raw = new String(bytes, StandardCharsets.UTF_8);
         return gson.fromJson(raw, clazz);
+    }
+
+    public byte[] bytes() {
+        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(body));
+        byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.get(bytes);
+        return bytes;
     }
 
     private static String readLine(CharBuffer buffer) {

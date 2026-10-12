@@ -8,6 +8,7 @@ import pl.piotrtrybala.http.router.Router;
 import pl.piotrtrybala.http.types.StatusCode;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class Main {
@@ -24,6 +25,7 @@ public class Main {
                 System.out.println("data form = " + form);
                 return Response.ok();
             });
+
             router.post("/json", (request) -> {
                 Data.Input input = request.json(Data.Input.class);
                 System.out.println("JSON input =" + input.name);
@@ -34,20 +36,20 @@ public class Main {
 
                 return response;
             });
+
             router.get("/params/{id1}/{id2}", (request) -> {
                 HashMap<String, String> params = request.params();
                 System.out.println(params + " = " + params.get("id1"));
                 return Response.ok();
             });
-            router.post("/form", (request) -> Response.ok());
-            router.put("/file/{id}", (request) -> Response.ok());
-            router.delete("/file/{id}", (request) -> Response.ok());
-            router.head("/info", (request) -> Response.ok());
 
+            router.put("/file", (request) -> {
+                byte[] bytes = request.bytes();
+                System.out.println("Bytes length = " + bytes.length + ", content = " + Arrays.toString(bytes));
+                return Response.ok();
+            });
             router.print();
-
             server.run();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
