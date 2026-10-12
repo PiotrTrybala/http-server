@@ -16,7 +16,15 @@ public class Route {
     private SortedSet<Pair<String, Route>> routes;
     private Map<Method, Handler> handlers;
 
-    public record RouteMatch(Handler handler, Map<String, String> parameters) { }
+    public record RouteMatch(Handler handler, Map<String, String> parameters) {
+        @Override
+        public String toString() {
+            return "RouteMatch{" +
+                    "handler=" + handler +
+                    ", parameters=" + parameters +
+                    '}';
+        }
+    }
 
     public Route(String segment) {
         this.segment = segment;
@@ -28,7 +36,8 @@ public class Route {
 
         if (path == null || path.isEmpty()) return;
 
-        String[] segments = path.split("/");
+        String[] raw = path.split("/");
+        List<String> segments = Arrays.stream(raw).skip(1).toList();
         Route currentSegment = this;
         int level = 0;
 
@@ -63,11 +72,16 @@ public class Route {
     public RouteMatch matchRoute(Method method, String path) {
         Map<String, String> parameters = new HashMap<>();
 
+        System.out.println("path = " + path + ", path = " + path);
+
         if (path == null || path.isEmpty()) return new RouteMatch(null, new HashMap<>());
 
-        String[] segments = path.split("/");
+        String[] raw = path.split("/");
+        List<String> segments = Arrays.stream(raw).skip(1).toList();
         Route currentSegment = this;
         int level = 0;
+
+        System.out.println(segments + ", " + currentSegment);
 
         for (String segment : segments) {
             if (segment.isEmpty()) continue;
@@ -83,6 +97,10 @@ public class Route {
                     matchedKey = pair.getKey();
                     break;
                 }
+            }
+
+            if (nextSegment != null) {
+                nextSegment.print();
             }
 
             // Do parameter match of route
@@ -120,5 +138,20 @@ public class Route {
 
         Handler handler = currentSegment.handlers.getOrDefault(method, null);
         return new RouteMatch(handler, parameters);
+    }
+
+    public void print() {
+        this.printHelper(this);
+    }
+
+    private void printHelper(Route route) {
+
+        route.handlers.forEach((k, v) -> System.out.println(k + ": " + v));
+
+        for (Pair<String, Route> pair : route.routes) {
+            Route child = pair.getValue();
+            if (child == null) continue;
+            this.printHelper(child);
+        }
     }
 }

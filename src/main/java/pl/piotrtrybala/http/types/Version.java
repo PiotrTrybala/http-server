@@ -1,7 +1,5 @@
 package pl.piotrtrybala.http.types;
 
-import pl.piotrtrybala.HTTPVersion;
-
 public enum Version {
     HTTP11("HTTP/1.1");
 

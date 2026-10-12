@@ -20,6 +20,9 @@ public class Router {
         Route.RouteMatch match = this.root.getRouteMatch(request.getMethod(), request.getUri().getPath());
         if (match == null) return null;
 
+        System.out.println(match.toString());
+
+
         // Set parameters parsed in URI path
         Handler handler = match.handler();
         handler.setParams(match.parameters());
@@ -27,33 +30,23 @@ public class Router {
         return handler;
     }
 
-//    public Route root; // route /
-//
-//    public Router() {
-//        this.root = new Route();
-//    }
-//
-//    public Function<Request, Response> getHandler(Method method, String path) {
-//        return this.root.getHandler(method, path);
-//    }
-//
-//    private void addRoute(Method method, String path, Function<Request, Response> handler) {
-//        this.root.addRoute(method, path, handler);
-//    }
-//
-//    public void get(String uri, Function<Request, Response> handler) {
-//        this.addRoute(Method.GET, uri, handler);
-//    }
-//    public void post(String uri, Function<Request, Response> handler) {
-//        this.addRoute(Method.POST, uri, handler);
-//    }
-//    public void put(String uri, Function<Request, Response> handler) {
-//        this.addRoute(Method.PUT, uri, handler);
-//    }
-//    public void delete(String uri, Function<Request, Response> handler) {
-//        this.addRoute(Method.DELETE, uri, handler);
-//    }
-//    public void head(String uri, Function<Request, Response> handler) {
-//        this.addRoute(Method.HEAD, uri, handler);
-//    }
+    public void get(String path, Function<Request, Response> handler) {
+        this.root.addRoute(Method.GET, path, handler);
+    }
+    public void post(String path, Function<Request, Response> handler) {
+        this.root.addRoute(Method.POST, path, handler);
+    }
+    public void put(String path, Function<Request, Response> handler) {
+        this.root.addRoute(Method.PUT, path, handler);
+    }
+    public void delete(String path, Function<Request, Response> handler) {
+        this.root.addRoute(Method.DELETE, path, handler);
+    }
+    public void head(String path, Function<Request, Response> handler) {
+        this.root.addRoute(Method.HEAD, path, handler);
+    }
+
+    public void print() {
+        this.root.print();
+    }
 }

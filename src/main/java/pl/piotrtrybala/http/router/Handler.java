@@ -26,4 +26,12 @@ public class Handler {
     public Map<String, String> getParams() {
         return params;
     }
+
+    @Override
+    public String toString() {
+        return "Handler{" +
+                "params=" + params +
+                ", handle=" + handle +
+                '}';
+    }
 }

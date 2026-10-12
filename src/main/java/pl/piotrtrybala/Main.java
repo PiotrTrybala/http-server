@@ -15,7 +15,7 @@ public class Main {
             Router router = server.getRouter();
 
             router.get("/data", (request) -> {
-                System.out.println("Executing /data route");
+                System.out.println("jebac torun");
                 return Response.ok();
             });
             router.get("/params/{id1}/{id2}", (request) -> Response.ok());
@@ -24,6 +24,8 @@ public class Main {
             router.put("/file/{id}", (request) -> Response.ok());
             router.delete("/file/{id}", (request) -> Response.ok());
             router.head("/info", (request) -> Response.ok());
+
+            router.print();
 
             server.run();
 

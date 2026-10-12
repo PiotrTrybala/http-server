@@ -17,6 +17,6 @@ public class Dispatcher {
         if (handler == null) {
             return Response.notFound();
         }
-        return handler.apply(request);
+        return handler.getHandle().apply(request);
     }
 }

@@ -159,6 +159,10 @@ public class Request {
     private static HashMap<String, String> parseQuery(String queryString) throws UnsupportedEncodingException {
         HashMap<String, String> query = new HashMap<>();
 
+        if (queryString == null) {
+            return new HashMap<>();
+        }
+
         String[] queryParams = queryString.split("&");
         if (queryParams.length == 0) {
             return new HashMap<>();
