@@ -192,7 +192,6 @@ public class Request {
     public <T> T json(Class<T> clazz) {
         byte[] bytes = new String(body).getBytes(StandardCharsets.UTF_8);
         String raw = new String(bytes, StandardCharsets.UTF_8);
-
         return gson.fromJson(raw, clazz);
     }
 

@@ -24,7 +24,7 @@ public class Main {
                 System.out.println("data form = " + form);
                 return Response.ok();
             });
-            router.get("/json", (request) -> {
+            router.post("/json", (request) -> {
                 Data.Input input = request.json(Data.Input.class);
                 System.out.println("JSON input =" + input.name);
                 Response response = new Response();
