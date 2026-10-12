@@ -8,6 +8,7 @@ import pl.piotrtrybala.http.router.Router;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
 
 public class Server {
 
@@ -63,6 +64,8 @@ public class Server {
                 System.out.println("failed to parse rquest");
                 return;
             }
+
+            System.out.println("request = " + request.toString());
 
             // 2. ROUTE REQUEST AND SELECT HANDLER
             Handler handler = this.router.getHandler(request);

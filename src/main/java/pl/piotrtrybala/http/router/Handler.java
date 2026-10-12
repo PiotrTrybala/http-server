@@ -8,10 +8,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class Handler {
-    private Map<String, String> params;
+    private HashMap<String, String> params;
     private final Function<Request, Response> handle;
 
-    public Handler(Map<String, String> params, Function<Request, Response> handle) {
+    public Handler(HashMap<String, String> params, Function<Request, Response> handle) {
         this.handle = handle;
         this.params = params;
     }
@@ -20,10 +20,10 @@ public class Handler {
         return handle;
     }
 
-    public void setParams(Map<String, String> params) {
+    public void setParams(HashMap<String, String> params) {
         this.params = params;
     }
-    public Map<String, String> getParams() {
+    public HashMap<String, String> getParams() {
         return params;
     }
 

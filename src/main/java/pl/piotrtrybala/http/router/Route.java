@@ -16,7 +16,7 @@ public class Route {
     private SortedSet<Pair<String, Route>> routes;
     private Map<Method, Handler> handlers;
 
-    public record RouteMatch(Handler handler, Map<String, String> parameters) {
+    public record RouteMatch(Handler handler, HashMap<String, String> parameters) {
         @Override
         public String toString() {
             return "RouteMatch{" +
@@ -70,7 +70,7 @@ public class Route {
     }
 
     public RouteMatch matchRoute(Method method, String path) {
-        Map<String, String> parameters = new HashMap<>();
+        HashMap<String, String> parameters = new HashMap<>();
 
         System.out.println("path = " + path + ", path = " + path);
 
@@ -92,6 +92,7 @@ public class Route {
 
             // Do exact match of route
             for (Pair<String, Route> pair : currentSegment.routes) {
+                System.out.println("#" + level + ": Exact match = [" + pair.getKey() + ", " + pair.getValue() + "];");
                 if (segment.equals(pair.getKey())) {
                     nextSegment = pair.getValue();
                     matchedKey = pair.getKey();
@@ -106,6 +107,7 @@ public class Route {
             // Do parameter match of route
             if (nextSegment == null) {
                 for (Pair<String, Route> pair : currentSegment.routes) {
+                System.out.println("#" + level + ": Param match = [" + pair.getKey() + ", " + pair.getValue() + "];");
                     String key = pair.getKey();
                     if (key.startsWith("{") && key.endsWith("}")) {
                         nextSegment = pair.getValue();
@@ -145,8 +147,10 @@ public class Route {
     }
 
     private void printHelper(Route route) {
-
-        route.handlers.forEach((k, v) -> System.out.println(k + ": " + v));
+        System.out.println("Segment = " + this.segment);
+        route.handlers.forEach((k, v) ->
+                System.out.println(k + ": " + v)
+        );
 
         for (Pair<String, Route> pair : route.routes) {
             Route child = pair.getValue();

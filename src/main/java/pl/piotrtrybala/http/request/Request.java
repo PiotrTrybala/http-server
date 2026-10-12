@@ -1,20 +1,20 @@
 package pl.piotrtrybala.http.request;
 
-import pl.piotrtrybala.http.response.Response;
+import com.google.gson.Gson;
 import pl.piotrtrybala.http.types.Method;
 import pl.piotrtrybala.http.types.Version;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URL;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 
 public class Request {
+
+    private static Gson gson = new Gson();
 
     private Method method;
     private URI uri;
@@ -27,8 +27,7 @@ public class Request {
 
     private char[] body;
 
-    public Request() {
-    }
+    public Request() {}
 
     public Method getMethod() {
         return method;
@@ -54,7 +53,7 @@ public class Request {
         this.version = version;
     }
 
-    public HashMap<String, String> getParams() {
+    public HashMap<String, String> params() {
         return params;
     }
 
@@ -144,11 +143,11 @@ public class Request {
         // READ BODY
         char[] body = null;
         try {
-            int contentLength = Integer.parseInt(headers.get("Content-Length")); // error content length could be not defined
+            int contentLength = Integer.parseInt(headers.get("Content-Length"));
             body = new char[contentLength];
             charBuffer.get(body);
-        } catch (NullPointerException ex) {
-            return null;
+        } catch (Exception ex) {
+            body = null;
         }
 
         request.setBody(body);
@@ -179,11 +178,22 @@ public class Request {
         return query;
     }
 
-    public HashMap<String, String> formData(char[] body) throws UnsupportedEncodingException {
-        byte[] bytes = new String(body).getBytes(StandardCharsets.UTF_8);
-        String parsedBody = new String(bytes, StandardCharsets.UTF_8);
+    public HashMap<String, String> formData() {
+        try {
+            byte[] bytes = new String(body).getBytes(StandardCharsets.UTF_8);
+            String parsedBody = new String(bytes, StandardCharsets.UTF_8);
 
-        return Request.parseQuery(parsedBody);
+            return Request.parseQuery(parsedBody);
+        } catch (Exception e) {
+            return new HashMap<>();
+        }
+    }
+
+    public <T> T json(Class<T> clazz) {
+        byte[] bytes = new String(body).getBytes(StandardCharsets.UTF_8);
+        String raw = new String(bytes, StandardCharsets.UTF_8);
+
+        return gson.fromJson(raw, clazz);
     }
 
     private static String readLine(CharBuffer buffer) {

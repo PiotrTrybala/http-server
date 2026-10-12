@@ -14,9 +14,11 @@ public class Dispatcher {
     }
 
     public Response dispatch(Request request, Handler handler) {
+        System.out.println("Dispatcher handler = " + handler);
         if (handler == null) {
             return Response.notFound();
         }
+        request.setParams(handler.getParams());
         return handler.getHandle().apply(request);
     }
 }

@@ -1,4 +1,6 @@
 package pl.piotrtrybala.http.response;
 
-public class Body {
+public interface Body {
+    String getContent();
+    int size();
 }

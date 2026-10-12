@@ -1,11 +1,14 @@
 package pl.piotrtrybala.http.response;
 
+import com.google.gson.Gson;
 import pl.piotrtrybala.http.types.StatusCode;
 import pl.piotrtrybala.http.types.Version;
 
 import java.util.HashMap;
 
 public class Response {
+
+    private static Gson gson = new Gson();
 
     private Version version;
     private StatusCode statusCode;
@@ -80,6 +83,11 @@ public class Response {
         return response;
     }
 
+    public <T> void json(Object object) {
+        String json = gson.toJson(object);
+        this.body = new JsonBody(json);
+    }
+
     public static Response internalServerError() {
         Response response = new Response();
         response.setVersion(Version.HTTP11);
@@ -87,20 +95,39 @@ public class Response {
         return response;
     }
 
+    private static String SEPARATOR = "\r\n";
+
     public char[] toBuffer() {
 
-        String builder = "HTTP/1.1" +
-                " " +
-                statusCode.toString() +
-                "\r\n" +
-                "Server: shttp" + // add to config
-                "\r\n" +
-                "Content-Length: 0" + // dummy response
-                "\r\n" +
-                "Connection: close" +
-                "\r\n" +
-                "\r\n";
+        StringBuilder builder = new StringBuilder();
 
-        return builder.toCharArray();
+        builder.append("HTTP/1.1")
+                .append(" ")
+                .append(statusCode.toString())
+                .append(SEPARATOR);
+
+        int bodySize = (body != null) ? body.size() : 0;
+        builder.append("Content-Length: ").append(bodySize).append(SEPARATOR);
+
+        if (headers != null && !headers.isEmpty()) {
+            headers.forEach((key, value) -> {
+                builder.append(key).append(": ").append(value).append(SEPARATOR);
+            });
+            if (!headers.containsKey("Connection")) {
+                builder.append("Connection: close").append(SEPARATOR);
+            }
+        } else {
+            builder.append("Connection: close").append(SEPARATOR);
+        }
+
+        builder.append(SEPARATOR);
+
+        if (body != null) {
+            builder.append(body.getContent());
+        }
+
+        System.out.println(builder);
+
+        return builder.toString().toCharArray();
     }
 }
